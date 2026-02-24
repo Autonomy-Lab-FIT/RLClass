@@ -25,7 +25,7 @@ Once you have created your branch and pushed it to the repo, you are now ready t
 4. Verify the Python version with `python --version`. It should say 3.11.xx
 5. Install the requirements by runnning 'pip install -r requirements.txt`
 6. Once this is complete you can open the first Jupyter Notebook. You will need to select a Kernel from the top right. Click the button that says "Select Kernel".
-7. On the menu that pops up, select "Select from exisiting Python Environments". You should see your conda env, select that one.
+7. On the menu that pops up, select "Python Environments". You should see your conda env, select that one.
 8. If you get a pop up saying that you need to install 'ipykernel' install that and follow the prompts.
 9. You should now be able to run the Jupyter Notebooks and code. 
 
@@ -43,5 +43,5 @@ As we add more code every week, we will add it to the `main` branch but it is IM
 8. Press the button that says 'Commit' and then press it again when it changes to 'Sync'. You have now pushed your edits to the cloud on your branch.
 9. On Windows, return back to GitHub Desktop. Enter a commit message in the textbox on the lower left-hand side that says 'Summary' and a description in the description box.
 10. Press the button that says 'Commit' to commit your edits.
-11. A new button should then appear in the middle saying to 'Push' your changes, click that and you are done.
+11. A new blue button should then appear in the middle saying to 'push origin' your changes, click that and you are done.
 
