@@ -210,3 +210,5 @@ dynamic-programming/Dynamic_Programming_Sol.py
 temporal-difference/Temporal_Difference_Sol.py
 reinforce/REINFORCE_RTG.py
 *.DS_Store
+reinforce/REINFORCE_Baseline_MSakal.py
+reinforce/watch_cartpole.py
