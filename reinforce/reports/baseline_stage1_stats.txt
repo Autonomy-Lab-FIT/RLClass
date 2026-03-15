@@ -1,0 +1,95 @@
+Episode: 9 Timestep: 909 Total reward: -156.5 Episode length: 90.9 Actor Loss: -0.0092 VF Loss: 0.7667
+Episode: 19 Timestep: 1921 Total reward: -179.1 Episode length: 101.2 Actor Loss: -0.0010 VF Loss: 0.4257
+Episode: 29 Timestep: 3779 Total reward: -198.3 Episode length: 185.8 Actor Loss: -0.0034 VF Loss: 0.2876
+Episode: 39 Timestep: 4822 Total reward: -160.5 Episode length: 104.3 Actor Loss: -0.0073 VF Loss: 0.1588
+Episode: 49 Timestep: 5814 Total reward: -150.4 Episode length: 99.2 Actor Loss: 0.0013 VF Loss: 0.1475
+Eval @ Episode: 49 Eval mean reward: -835.12 Eval std reward: 652.56 Eval episode length: 211.1
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -835.12
+Episode: 59 Timestep: 6716 Total reward: -142.5 Episode length: 90.2 Actor Loss: -0.0099 VF Loss: 0.1035
+Episode: 69 Timestep: 7686 Total reward: -125.3 Episode length: 97.0 Actor Loss: -0.0149 VF Loss: 0.1179
+Episode: 79 Timestep: 8626 Total reward: -148.9 Episode length: 94.0 Actor Loss: -0.0064 VF Loss: 0.2178
+Episode: 89 Timestep: 9619 Total reward: -137.7 Episode length: 99.3 Actor Loss: -0.0177 VF Loss: 0.1827
+Episode: 99 Timestep: 10615 Total reward: -138.4 Episode length: 99.6 Actor Loss: -0.0167 VF Loss: 0.0714
+Eval @ Episode: 99 Eval mean reward: -822.00 Eval std reward: 304.60 Eval episode length: 210.5
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -822.00
+Episode: 109 Timestep: 11668 Total reward: -123.1 Episode length: 105.3 Actor Loss: -0.0248 VF Loss: 0.1285
+Episode: 119 Timestep: 12684 Total reward: -128.0 Episode length: 101.6 Actor Loss: -0.0261 VF Loss: 0.1082
+Episode: 129 Timestep: 13912 Total reward: -124.5 Episode length: 122.8 Actor Loss: -0.0217 VF Loss: 0.0709
+Episode: 139 Timestep: 15170 Total reward: -70.9 Episode length: 125.8 Actor Loss: -0.0186 VF Loss: 0.1156
+Episode: 149 Timestep: 16606 Total reward: -86.7 Episode length: 143.6 Actor Loss: -0.0339 VF Loss: 0.0651
+Eval @ Episode: 149 Eval mean reward: -1287.20 Eval std reward: 1285.65 Eval episode length: 171.6
+Episode: 159 Timestep: 18394 Total reward: -99.2 Episode length: 178.8 Actor Loss: -0.0195 VF Loss: 0.0685
+Episode: 169 Timestep: 20481 Total reward: -113.1 Episode length: 208.7 Actor Loss: -0.0146 VF Loss: 0.1849
+Episode: 179 Timestep: 22077 Total reward: -54.3 Episode length: 159.6 Actor Loss: -0.0633 VF Loss: 0.0497
+Episode: 189 Timestep: 24278 Total reward: -80.4 Episode length: 220.1 Actor Loss: -0.0448 VF Loss: 0.0446
+Episode: 199 Timestep: 27177 Total reward: -64.2 Episode length: 289.9 Actor Loss: -0.0316 VF Loss: 0.1069
+Eval @ Episode: 199 Eval mean reward: -1822.98 Eval std reward: 1412.08 Eval episode length: 214.1
+Episode: 209 Timestep: 30290 Total reward: -111.2 Episode length: 311.3 Actor Loss: -0.0334 VF Loss: 0.1490
+Episode: 219 Timestep: 33419 Total reward: -95.4 Episode length: 312.9 Actor Loss: -0.0548 VF Loss: 0.0860
+Episode: 229 Timestep: 37543 Total reward: -165.0 Episode length: 412.4 Actor Loss: -0.0021 VF Loss: 0.1999
+Episode: 239 Timestep: 40666 Total reward: -61.2 Episode length: 312.3 Actor Loss: -0.0365 VF Loss: 0.1122
+Episode: 249 Timestep: 44190 Total reward: -18.4 Episode length: 352.4 Actor Loss: -0.0241 VF Loss: 0.1039
+Eval @ Episode: 249 Eval mean reward: -2086.37 Eval std reward: 155.53 Eval episode length: 943.8
+Episode: 259 Timestep: 47945 Total reward: -16.7 Episode length: 375.5 Actor Loss: -0.0382 VF Loss: 0.0997
+Episode: 269 Timestep: 51460 Total reward: -138.3 Episode length: 351.5 Actor Loss: -0.0097 VF Loss: 0.1877
+Episode: 279 Timestep: 57854 Total reward: -73.4 Episode length: 639.4 Actor Loss: -0.0248 VF Loss: 0.1197
+Episode: 289 Timestep: 63595 Total reward: -38.5 Episode length: 574.1 Actor Loss: -0.0273 VF Loss: 0.0957
+Episode: 299 Timestep: 69919 Total reward: -11.8 Episode length: 632.4 Actor Loss: -0.0546 VF Loss: 0.0858
+Eval @ Episode: 299 Eval mean reward: -568.48 Eval std reward: 102.90 Eval episode length: 717.1
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -568.48
+Episode: 309 Timestep: 75527 Total reward: -17.1 Episode length: 560.8 Actor Loss: -0.0412 VF Loss: 0.1113
+Episode: 319 Timestep: 83110 Total reward: -12.7 Episode length: 758.3 Actor Loss: -0.0477 VF Loss: 0.0606
+Episode: 329 Timestep: 91376 Total reward: -49.7 Episode length: 826.6 Actor Loss: -0.0221 VF Loss: 0.0922
+Episode: 339 Timestep: 100016 Total reward: -26.9 Episode length: 864.0 Actor Loss: -0.0393 VF Loss: 0.0500
+Episode: 349 Timestep: 106223 Total reward: -58.0 Episode length: 620.7 Actor Loss: -0.0377 VF Loss: 0.0876
+Eval @ Episode: 349 Eval mean reward: -737.68 Eval std reward: 39.02 Eval episode length: 1000.0
+Episode: 359 Timestep: 115518 Total reward: -87.6 Episode length: 929.5 Actor Loss: -0.0178 VF Loss: 0.0418
+Episode: 369 Timestep: 122786 Total reward: -93.7 Episode length: 726.8 Actor Loss: -0.0293 VF Loss: 0.1185
+Episode: 379 Timestep: 130745 Total reward: -44.0 Episode length: 795.9 Actor Loss: -0.0560 VF Loss: 0.1621
+Episode: 389 Timestep: 134674 Total reward: 21.7 Episode length: 392.9 Actor Loss: 0.0059 VF Loss: 0.0744
+Episode: 399 Timestep: 140394 Total reward: 22.5 Episode length: 572.0 Actor Loss: -0.0351 VF Loss: 0.0699
+Eval @ Episode: 399 Eval mean reward: -82.55 Eval std reward: 19.37 Eval episode length: 1000.0
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -82.55
+Episode: 409 Timestep: 149558 Total reward: -12.6 Episode length: 916.4 Actor Loss: -0.0252 VF Loss: 0.0632
+Episode: 419 Timestep: 159558 Total reward: 7.9 Episode length: 1000.0 Actor Loss: -0.0341 VF Loss: 0.0362
+Episode: 429 Timestep: 167200 Total reward: -3.6 Episode length: 764.2 Actor Loss: -0.0507 VF Loss: 0.0899
+Episode: 439 Timestep: 175190 Total reward: -7.6 Episode length: 799.0 Actor Loss: -0.0154 VF Loss: 0.0987
+Episode: 449 Timestep: 183230 Total reward: -0.6 Episode length: 804.0 Actor Loss: -0.0348 VF Loss: 0.0611
+Eval @ Episode: 449 Eval mean reward: -41.70 Eval std reward: 20.89 Eval episode length: 1000.0
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -41.70
+Episode: 459 Timestep: 189593 Total reward: -18.1 Episode length: 636.3 Actor Loss: -0.0249 VF Loss: 0.1073
+Episode: 469 Timestep: 197338 Total reward: -13.4 Episode length: 774.5 Actor Loss: -0.0573 VF Loss: 0.0567
+Episode: 479 Timestep: 205380 Total reward: -30.8 Episode length: 804.2 Actor Loss: -0.0488 VF Loss: 0.0832
+Episode: 489 Timestep: 214382 Total reward: -24.1 Episode length: 900.2 Actor Loss: -0.0231 VF Loss: 0.0484
+Episode: 499 Timestep: 223558 Total reward: 25.1 Episode length: 917.6 Actor Loss: -0.0237 VF Loss: 0.0547
+Eval @ Episode: 499 Eval mean reward: -17.12 Eval std reward: 15.75 Eval episode length: 1000.0
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward -17.12
+Episode: 509 Timestep: 232791 Total reward: 28.5 Episode length: 923.3 Actor Loss: -0.0508 VF Loss: 0.0611
+Episode: 519 Timestep: 240510 Total reward: 14.2 Episode length: 771.9 Actor Loss: -0.0723 VF Loss: 0.1133
+Episode: 529 Timestep: 248380 Total reward: 51.8 Episode length: 787.0 Actor Loss: -0.0792 VF Loss: 0.0666
+Episode: 539 Timestep: 256009 Total reward: 58.1 Episode length: 762.9 Actor Loss: -0.0624 VF Loss: 0.1061
+Episode: 549 Timestep: 259736 Total reward: 35.2 Episode length: 372.7 Actor Loss: -0.0347 VF Loss: 0.1298
+Eval @ Episode: 549 Eval mean reward: 109.96 Eval std reward: 102.92 Eval episode length: 790.3
+Saved new best checkpoint to checkpoints/lunarlander_reinforce_baseline_best.pt with eval mean reward 109.96
+Episode: 559 Timestep: 264465 Total reward: 27.2 Episode length: 472.9 Actor Loss: -0.0345 VF Loss: 0.1007
+Episode: 569 Timestep: 274465 Total reward: 60.6 Episode length: 1000.0 Actor Loss: -0.0575 VF Loss: 0.0663
+Episode: 579 Timestep: 284463 Total reward: 86.8 Episode length: 999.8 Actor Loss: -0.0370 VF Loss: 0.0462
+Episode: 589 Timestep: 291266 Total reward: 88.5 Episode length: 680.3 Actor Loss: -0.0451 VF Loss: 0.0893
+Episode: 599 Timestep: 296688 Total reward: 43.4 Episode length: 542.2 Actor Loss: -0.0381 VF Loss: 0.0966
+Eval @ Episode: 599 Eval mean reward: -66.39 Eval std reward: 26.57 Eval episode length: 1000.0
+Episode: 609 Timestep: 303611 Total reward: 64.8 Episode length: 692.3 Actor Loss: -0.0502 VF Loss: 0.0879
+Episode: 619 Timestep: 308362 Total reward: -4.2 Episode length: 475.1 Actor Loss: -0.0333 VF Loss: 0.0761
+Episode: 629 Timestep: 313150 Total reward: -15.2 Episode length: 478.8 Actor Loss: -0.0534 VF Loss: 0.1218
+Episode: 639 Timestep: 315665 Total reward: -124.2 Episode length: 251.5 Actor Loss: -0.0259 VF Loss: 0.1266
+Episode: 649 Timestep: 320562 Total reward: 38.6 Episode length: 489.7 Actor Loss: -0.0565 VF Loss: 0.3934
+Eval @ Episode: 649 Eval mean reward: -63.59 Eval std reward: 104.46 Eval episode length: 826.1
+Episode: 659 Timestep: 328406 Total reward: 122.1 Episode length: 784.4 Actor Loss: -0.0207 VF Loss: 0.1476
+Episode: 669 Timestep: 334205 Total reward: 176.4 Episode length: 579.9 Actor Loss: -0.0915 VF Loss: 0.1401
+Stopping at episode 671 with average rewards of 190.9060025030214 in last 10 episodes
+
+
+From the video output,
+- it can land in between the two flag, 
+- it touch down close to the right flag, 
+- but it kept firing the thruster which make it move to the left and roll down the cliff, 
+- it is not flipping over, but kept rolling to the left
