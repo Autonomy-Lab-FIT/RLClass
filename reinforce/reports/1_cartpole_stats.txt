@@ -1,0 +1,27 @@
+
+## Baseline
+Episode 100	Average Score: 23.83
+Episode 200	Average Score: 81.40
+Episode 300	Average Score: 72.85
+Episode 400	Average Score: 138.55
+Episode 500	Average Score: 139.37
+Episode 600	Average Score: 129.32
+Episode 700	Average Score: 124.80
+Episode 800	Average Score: 169.13
+Episode 900	Average Score: 141.09
+Episode 1000	Average Score: 140.46
+Environment solved in 947 episodes!	Average Score: 195.28
+
+
+Episode reward: 247.0
+Saved video to folder: videos
+
+
+## Adding RTG
+
+Episode 100	Average Score: 77.15
+Episode 200	Average Score: 170.89
+Environment solved in 112 episodes!	Average Score: 196.69
+
+Episode reward: 411.0
+Saved video to folder: videos
