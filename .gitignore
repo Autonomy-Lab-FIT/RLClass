@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Previous Weeks
+dqn/
+dynamic-programming/
+reinforce/
+temporal-difference/
+
 # Distribution / packaging
 .Python
 build/
