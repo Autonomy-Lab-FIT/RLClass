@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from torch.distributions import Normal
 import matplotlib.pyplot as plt
 
-from utils import str2bool, Action_adapter, Reward_adapter, evaluate_policy
+from utils import str2bool, plot_training_score, Action_adapter, Reward_adapter, evaluate_policy
 
 class Critic(nn.Module):
 	def __init__(self, _ , _):
@@ -40,10 +40,12 @@ class Actor(nn.Module):
 		super(Actor, self).__init__()
 		
 		
+		self.logstd = nn.Parameter(torch.zeros( _ ))  # learnable log σ
 
-	def forward(self, _ ):
-		mu = torch.sigmoid( _ )
-		sigma = F.softplus( _ )
+	def forward(self, state):
+		
+		mu = _ 
+		sigma = _ 
 		return mu,sigma
 
 	def get_dist(self, state):
@@ -177,6 +179,14 @@ class PPO_agent(object):
 
 
 
+
+
+
+
+
+
+
+
 '''Hyperparameter Setting'''
 parser = argparse.ArgumentParser()
 parser.add_argument('--dvc', type=str, default='cpu', help='running device: cuda or cpu')
@@ -208,17 +218,6 @@ parser.add_argument('--entropy_coef_decay', type=float, default=0.99, help='Deca
 opt = parser.parse_args()
 opt.dvc = torch.device(opt.dvc) # from str to torch.device
 print(opt)
-
-
-def plot_training_score(scores, steps, filename='training_score.png'):
-    plt.figure(figsize=(10, 6))
-    plt.plot(steps, scores, marker='o', linestyle='-', color='b')
-    plt.title('Training Score Over Time')
-    plt.xlabel('Total Steps')
-    plt.ylabel('Episode Reward')
-    plt.grid(True)
-    plt.savefig(filename)
-    plt.close()
 
 def main():
     EnvName = []
