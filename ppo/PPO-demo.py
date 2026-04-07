@@ -13,12 +13,69 @@ import matplotlib.pyplot as plt
 
 from utils import str2bool, plot_training_score, Action_adapter, Reward_adapter, evaluate_policy
 
+# Practical Loop
+# PPO training loop
+# Step 0: Initialization
+# Actor parameters \theta
+# Critic parameters \phi
+
+# Step 1: Collect rollout
+# For t=0,...,T-1 in env
+# observe s_t
+# Compute \pi(\dot|s_t) (policy distribution)
+# Sample action a_t
+# Compute log prob log(\pi(a_t|s_t))
+# Compute value estimate V_{\phi}(s_t)
+# Step env with a_t
+# get r_t, s_t+1, done flag d_t and store
+# if env terminates reset and continue collecting so rollout tensor remains full
+
+# Step 2: get bootstrap value for final states
+# After last rollout step compute V_{\phi}(S_T) for each env's final next-state
+
+# Step 3: Compute GAE advantages
+# Go backward through rollout and compute
+# \delta_t=r_t+\gamma(1-d_t)*V_{\phi}(s_{t+1})-V_{\phi}}(s_t)
+# \hat{A} = \delta_t + \gamma\lambda(1-d_t)\hat{A}_{t+1}
+# Store all \hat{A}_t
+
+# Step 4: Compute return targets
+# \hat{R}_t = \hat{A}_t+V_\phi(s_t)
+# Store all \hat{R}_t
+
+# Step 5: Normalize advantages
+# Normalize \hat{A}_t over the whole batch
+
+# Step 6: Perform PPO Updates
+# for K epochs:
+#   shuffle full rollout batch
+#   divide into minibatches
+#   for each minibatch
+# recompute current policy log probs log\pi_\thest(a_t|s_t)
+# recompute current values V_\phi(s_t)
+# Compute ratio
+# r_t(\theta) = exp(log(\pi_\theta(a_t|s_t))-log(\pi_\theta_old(a_t|s_t))))
+# Compute clipped actor objective
+# Compute entropy bonus
+# Form total loss
+# Zero gradients
+# Backpropagate
+# clip gradient norm (optional)
+# optimizer step
+
+# Step 7: discard old rollout and collect new one
+# once all K epochs are done, throw away old rollout batch
+# Collect new data on updated policy
+# Repeat forever
+
 class Critic(nn.Module):
-	def __init__(self, _ , _):
+	def __init__(self, s_size , hidden):
 		super(Critic, self).__init__()
 		
         # neural network architecture for the critic
-		
+		self.layer1 = nn.Linear(s_size, hidden)
+		self.layer2 = nn.Linear(hidden,hidden)
+		self.layer3 = nn.Linear(hidden,1)
 	
 		self.apply(self._init_weights)
 
@@ -30,29 +87,47 @@ class Critic(nn.Module):
 				module.bias.data.zero_()
 
     # forward pass through the critic network
-	def forward(self, _ ):
-		v = _ 
+	def forward(self, s ):
+		v = F.relu(self.layer1(s))
+		v = F.relu(self.layer2(v))
+		v = F.relu(self.layer3(v))
 		return v
 
 # actor with gaussian distribution (continuous action space)
 class Actor(nn.Module):
-	def __init__(self, _ , _ , _ ):
+	def __init__(self, s_size , a_size , hidden ):
 		super(Actor, self).__init__()
 		
+		self.mulayer1 = nn.Linear(s_size, hidden)
+		self.mulayer2 = nn.Linear(hidden, hidden)
+		self.mulayer3 = nn.Linear(hidden, a_size)
+
+		self.siglayer1 = nn.Linear(s_size, hidden)
+		self.siglayer2 = nn.Linear(hidden, hidden)
+		self.siglayer3 = nn.Linear(hidden, a_size)
 		
-		
+		self.apply(self._init_weights)
 
 	def forward(self, state):
-		
+		mu = F.relu(self.mulayer1(state))
+		mu = F.relu(self.mulayer2(mu))
+		mu = F.relu(self.mulayer3(mu))
+
+		sigma = F.relu(self.siglayer1(state))
+		sigma = F.relu(self.siglayer2(sigma))
+		sigma = F.relu(self.siglayer3(sigma))
 	
 		return mu, sigma
 
 	def get_dist(self, state):
-		
+		mu, sigma = self.forward(state)
+		dist = Normal(mu,sigma)
 		return dist
 
 	def deterministic_act(self, state):
-
+		mu = F.relu(self.mulayer1(state))
+		mu = F.relu(self.mulayer2(mu))
+		mu = F.relu(self.mulayer3(mu))
 		return mu
 
 class PPO_agent(object):
@@ -60,27 +135,38 @@ class PPO_agent(object):
 		# Init hyperparameters for PPO agent, just like "self.gamma = opt.gamma, self.lambd = opt.lambd, ..."
 		self.__dict__.update(kwargs)
 		
+		state_size = 8
+		action_size = 2
+		hidden_size = 64
+		buffer_length = 2048
+
 		''' Build Actor '''
-		
+		self.actor = Actor(state_size, action_size, hidden_size)
 		
 		'''Build Critic'''
-	
+		self.critic = Critic(state_size, hidden_size)
 		
 		'''Build Replay Buffer'''
+		self.state_buffer = np.zeros((state_size, buffer_length))
+		self.action_buffer = np.zeros((action_size, buffer_length))
+		self.next_state_buffer = np.zeros((state_size, buffer_length))
+		self.log_prob_buffer = np.zeros((action_size, buffer_length))
+		self.value_estimate_buffer = np.zeros((1, buffer_length))
+		self.reward_buffer = np.zeros((1,buffer_length))
+		self.done_buffer = np.zeros((1, buffer_length))
 
 
-	def select_action(self, _ , deterministic):
+	def select_action(self, state, deterministic):
 		with torch.no_grad():
 			state = torch.FloatTensor(state.reshape(1, -1)).to(self.dvc)
 			if deterministic:
 				# only used when evaluate the policy. Making the performance more stable
-				
-			
-				return 
+				action = self.actor.deterministic_act(state)
+				return action
 			else:
 				# only used when interact with the env
-				
-				
+				[mu, sigma] = self.actor.forward(state)
+				### ADD NORMAL DISTRIBUTION SAMPLING ###
 				return 
 
 
