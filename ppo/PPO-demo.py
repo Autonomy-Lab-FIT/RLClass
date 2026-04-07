@@ -40,21 +40,19 @@ class Actor(nn.Module):
 		super(Actor, self).__init__()
 		
 		
-		self.logstd = nn.Parameter(torch.zeros( _ ))  # learnable log σ
+		
 
 	def forward(self, state):
 		
-		mu = _ 
-		sigma = _ 
-		return mu,sigma
+	
+		return mu, sigma
 
 	def get_dist(self, state):
-		mu,sigma = self.forward(state)
-		dist = Normal(mu,sigma)
+		
 		return dist
 
 	def deterministic_act(self, state):
-		mu, _ = self.forward(state)
+
 		return mu
 
 class PPO_agent(object):
@@ -63,12 +61,10 @@ class PPO_agent(object):
 		self.__dict__.update(kwargs)
 		
 		''' Build Actor '''
-		self.actor = _ 
-		self.actor_optimizer = _ 
+		
 		
 		'''Build Critic'''
-		self.critic = _ 
-		self.critic_optimizer = _ 
+	
 		
 		'''Build Replay Buffer'''
 
@@ -113,8 +109,8 @@ class PPO_agent(object):
 
 
 		"""Slice long trajectopy into short trajectory and perform mini-batch PPO update"""
-		a_optim_iter_num = int(math.ceil(s.shape[0] / self.a_optim_batch_size))
-		c_optim_iter_num = int(math.ceil(s.shape[0] / self.c_optim_batch_size))
+		a_optim_iter_num = 
+		c_optim_iter_num = 
 		for i in range(self.K_epochs):
 			
 			#Shuffle the trajectory, Good for training
@@ -139,10 +135,7 @@ class PPO_agent(object):
 
 
 				'''backprop and optimise'''
-				self.actor_optimizer.zero_grad()
-				a_loss.mean().backward()
-				torch.nn.utils.clip_grad_norm_(self.actor.parameters(), 40)
-				self.actor_optimizer.step()
+				
 
 			'''update the critic'''
 			for i in range(c_optim_iter_num):
@@ -156,9 +149,7 @@ class PPO_agent(object):
 				
 						
 				'''backprop and optimise'''
-				self.critic_optimizer.zero_grad()
-				c_loss.backward()
-				self.critic_optimizer.step()
+				
 
 	def put_data(self, s, a, r, s_next, logprob_a, done, dw, idx):
 		self.s_buffer[idx] = s
@@ -247,14 +238,14 @@ def main():
     '''Create PPO agent and directory to store'''
     if not os.path.exists('model'): os.mkdir('model')
     
-    if opt.Loadmodel: agent.load(BrifEnvName[opt.EnvIdex], opt.ModelIdex)
+    if opt.Loadmodel: 
 
     '''Run Training loop or Eval'''
     if opt.render:
         
     else:
         traj_lenth, total_steps = 0, 0
-        while total_steps < opt.Max_train_steps:
+        while :
 			'''Reset Env and initialise'''
 			'''Interact & train'''
 			while not done:
