@@ -73,9 +73,13 @@ class Critic(nn.Module):
 		super(Critic, self).__init__()
 		
         # neural network architecture for the critic
-		self.layer1 = nn.Linear(s_size, hidden)
-		self.layer2 = nn.Linear(hidden,hidden)
-		self.layer3 = nn.Linear(hidden,1)
+		self.critic = nn.Sequential(
+			nn.Linear(s_size, hidden),
+			nn.tanh(),
+			nn.Linear(hidden, hidden),
+			nn.tanh(),
+			nn.Linear(hidden,1)
+		)
 	
 		self.apply(self._init_weights)
 
@@ -87,35 +91,36 @@ class Critic(nn.Module):
 				module.bias.data.zero_()
 
     # forward pass through the critic network
-	def forward(self, s ):
-		v = F.relu(self.layer1(s))
-		v = F.relu(self.layer2(v))
-		v = F.relu(self.layer3(v))
+	def forward(self, s):
+		v = self.critic(s)
 		return v
 
 # actor with gaussian distribution (continuous action space)
 class Actor(nn.Module):
-	def __init__(self, s_size , a_size , hidden ):
+	def __init__(self, s_size , a_size , hidden):
 		super(Actor, self).__init__()
 		
-		self.mulayer1 = nn.Linear(s_size, hidden)
-		self.mulayer2 = nn.Linear(hidden, hidden)
-		self.mulayer3 = nn.Linear(hidden, a_size)
+		self.mu_head = nn.Sequential(
+			nn.Linear(s_size, hidden),
+			nn.tanh(),
+			nn.Linear(hidden, hidden),
+			nn.tanh(),
+			nn.Linear(hidden, a_size)
+		)
 
-		self.siglayer1 = nn.Linear(s_size, hidden)
-		self.siglayer2 = nn.Linear(hidden, hidden)
-		self.siglayer3 = nn.Linear(hidden, a_size)
-		
-		self.apply(self._init_weights)
+		self.sigma_head = nn.Sequential(
+			nn.Linear(s_size, hidden),
+			F.tanh(),
+			nn.Linear(hidden, hidden),
+			F.tanh(),
+			nn.Linear(hidden, a_size)
+		)
+
+		self.logstd = nn.Parameter(torch.zeros(a_size))
 
 	def forward(self, state):
-		mu = F.relu(self.mulayer1(state))
-		mu = F.relu(self.mulayer2(mu))
-		mu = F.relu(self.mulayer3(mu))
-
-		sigma = F.relu(self.siglayer1(state))
-		sigma = F.relu(self.siglayer2(sigma))
-		sigma = F.relu(self.siglayer3(sigma))
+		mu = self.mu_head(state)
+		sigma = torch.exp(self.logstd)
 	
 		return mu, sigma
 
@@ -125,9 +130,7 @@ class Actor(nn.Module):
 		return dist
 
 	def deterministic_act(self, state):
-		mu = F.relu(self.mulayer1(state))
-		mu = F.relu(self.mulayer2(mu))
-		mu = F.relu(self.mulayer3(mu))
+		mu, _ = self.forward(state)
 		return mu
 
 class PPO_agent(object):
@@ -137,23 +140,26 @@ class PPO_agent(object):
 		
 		state_size = 8
 		action_size = 2
-		hidden_size = 64
-		buffer_length = 2048
+		hidden_size = self.net_width # 150
+		buffer_length = self.T_horizon # 2048
 
 		''' Build Actor '''
-		self.actor = Actor(state_size, action_size, hidden_size)
+		self.actor = Actor(self.state_size, self.action_size, self.hidden_size).to(self.dvc)
+		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=self.a_lr)
 		
 		'''Build Critic'''
-		self.critic = Critic(state_size, hidden_size)
+		self.critic = Critic(self.state_size, self.hidden_size)
+		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.c_lr)
 		
 		'''Build Replay Buffer'''
-		self.state_buffer = np.zeros((state_size, buffer_length))
-		self.action_buffer = np.zeros((action_size, buffer_length))
-		self.next_state_buffer = np.zeros((state_size, buffer_length))
-		self.log_prob_buffer = np.zeros((action_size, buffer_length))
-		self.value_estimate_buffer = np.zeros((1, buffer_length))
-		self.reward_buffer = np.zeros((1,buffer_length))
-		self.done_buffer = np.zeros((1, buffer_length))
+		self.s_buffer = np.zeros((state_size, buffer_length), dtype=np.float32).T
+		self.a_buffer = np.zeros((action_size, buffer_length), dtype=np.float32).T
+		self.s_next_buffer = np.zeros((state_size, buffer_length), dtype=np.float32).T
+		self.logprob_a_buffer = np.zeros((action_size, buffer_length), dtype=np.float32).T
+		self.value_estimate_buffer = np.zeros((1, buffer_length), dtype=np.float32).T
+		self.r_buffer = np.zeros((1,buffer_length), dtype=np.float32).T
+		self.done_buffer = np.zeros((1, buffer_length), dtype=np.bool_).T
+		self.dw_buffer = np.zeros((1, buffer_length), np.bool_).T
 
 
 	def select_action(self, state, deterministic):
@@ -162,12 +168,12 @@ class PPO_agent(object):
 			if deterministic:
 				# only used when evaluate the policy. Making the performance more stable
 				action = self.actor.deterministic_act(state)
-				return action
+				return action.cpu().numpy()[0], None
 			else:
 				# only used when interact with the env
 				[mu, sigma] = self.actor.forward(state)
-				### ADD NORMAL DISTRIBUTION SAMPLING ###
-				return 
+				action = torch.normal(mean=mu, std=sigma)
+				return action.cpu().numpy()[0], self.actor.get_dist(state).log_prob(action).cpu().numpy().flatten()
 
 
 	def train(self):
@@ -185,18 +191,30 @@ class PPO_agent(object):
 		''' Use TD+GAE+LongTrajectory to compute Advantage and TD target'''
 		with torch.no_grad():
 			'''calculate values at current and next timestep'''
-			
+			v = self.critic(s)
+			v_next_state = self.critic(s_next)
 
 			'''dw for TD_target and Adv'''
-			
+			v_next_state = v_next_state * (~dw)
 
 			'''done for GAE'''
+			deltas = r + self.gamma*v_next_state - v
+			deltas = deltas.cpu().flatten().numpy()
+			adv = [0]
+			deltas = r + self.gamma*v_next_state - v
+			for dlt, mask in zip(deltas[::-1], done.cpu().flatten().numpy()[::-1]):
+				advantage = dlt+ self.gamma * self.lambd * (~mask) * adv[-1]
+				adv.append(advantage)
+			adv.reverse()
+			adv = copy.deepcopy(adv[0:-1])
+			adv = torch.tensor(adv).unsqueeze(1).float().to(self.dvc)
+
+			td_target = adv + v
+			adv = (adv - adv.mean()) / ((adv.std()+1e-4))
 			
-
-
 		"""Slice long trajectopy into short trajectory and perform mini-batch PPO update"""
-		a_optim_iter_num = 
-		c_optim_iter_num = 
+		a_optim_iter_num = int(math.ceil(s.shape[0]/self.a_optim_batch_size))
+		c_optim_iter_num = int(math.ceil(s.shape[0]/self.c_optim_batch_size))
 		for i in range(self.K_epochs):
 			
 			#Shuffle the trajectory, Good for training
@@ -210,18 +228,31 @@ class PPO_agent(object):
 			# loop through all the batches of data
 			for i in range(a_optim_iter_num):
 				'''get the batch data'''
-				
+				index = slice(i * self.a.optim_batch_size, min((i+1) * self.a_optim_batch_size, s.shape[0]))
+				s_batch = s[index]
+				a_batch = a[index]
+				logprob_a_batch = logprob_a[index]
+				#td_target_batch = td_target[index]
+				adv_batch = adv[index]
+
+				distribution = self.actor.get(s_batch)
+				dist_entropy = distribution.entropy().sum(1, keepdim=True)
 
 				'''calculate log probablity ratio'''
-				
+				ratio = torch.exp(self.actor.get_dist(s_batch).log_prob(a_batch).sum(1,keepdim=True)-logprob_a_batch.sum(1,keepdim=True))
 
 
 				'''calculate CLIP loss parts'''
-				
-
+				surr1 = ratio*adv_batch
+				surr2 = torch.clamp(ratio, 1-self.clip_rate, 1+self.clip_rate) * adv_batch
+				a_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy
+				a_loss.mean()
 
 				'''backprop and optimise'''
-				
+				self.actor_optimizer.zero_grad()
+				a_loss.backward()
+				torch.nn.utils.clip_grad_norm_(self.actor.parameters(), 40)
+				self.actor_optimizer.step()
 
 			'''update the critic'''
 			for i in range(c_optim_iter_num):
@@ -301,7 +332,8 @@ def main():
     BrifEnvName = []
 
     '''Build Env'''
-       
+    env = gym.make("LunarLander-v3", continuous=False, gravity=-10.0,
+               enable_wind=False, wind_power=15.0, turbulence_power=1.5)
 
     # print('Env:',EnvName[opt.EnvIdex],'  state_dim:',opt.state_dim,'  action_dim:',opt.action_dim,
         #   '  max_a:',opt.max_action,'  min_a:',env.action_space.low[0], 'max_steps', opt.max_steps)
@@ -323,7 +355,7 @@ def main():
 
     '''Create PPO agent and directory to store'''
     if not os.path.exists('model'): os.mkdir('model')
-    
+    agent = PPO_agent(**vars(opt))
     if opt.Loadmodel: 
 
     '''Run Training loop or Eval'''
@@ -333,6 +365,7 @@ def main():
         traj_lenth, total_steps = 0, 0
         while :
 			'''Reset Env and initialise'''
+			env.reset()
 			'''Interact & train'''
 			while not done:
 				'''Interact with Env'''
