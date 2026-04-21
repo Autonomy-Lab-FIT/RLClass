@@ -257,15 +257,24 @@ class PPO_agent(object):
 			'''update the critic'''
 			for i in range(c_optim_iter_num):
 				'''get the batch data'''
-				
-				
+				index = slice(i * self.a.optim_batch_size, min((i+1) * self.a_optim_batch_size, s.shape[0]))
+				s_batch = s[index]
+				td_target_batch = td_target[index]
+				v = self.critic(s_batch)
+
 				'''calculate critic loss'''
-				
+				c_loss = (v-td_target_batch).pow(2).mean()
 
 				'''apply L2 regularisation ONLY on weights'''
-				
+				for name,param in self.critic.named_parameters():
+					if 'weight' in name:
+						c_loss += param.pow(2).sum() * self.l2_reg
 						
 				'''backprop and optimise'''
+				self.critic_optimizer.zero_grad()
+				c_loss.backward()
+				self.critic.optimizer.step()
+
 				
 
 	def put_data(self, s, a, r, s_next, logprob_a, done, dw, idx):
@@ -298,7 +307,7 @@ class PPO_agent(object):
 '''Hyperparameter Setting'''
 parser = argparse.ArgumentParser()
 parser.add_argument('--dvc', type=str, default='cpu', help='running device: cuda or cpu')
-parser.add_argument('--EnvIdex', type=int, default=0, help='PV1, Lch_Cv2, Humanv4, HCv4, BWv3, BWHv3')
+parser.add_argument('--EnvIdex', type=int, default=1, help='PV1, Lch_Cv2, Humanv4, HCv4, BWv3, BWHv3')
 parser.add_argument('--write', type=str2bool, default=False, help='Use SummaryWriter to record the training')
 parser.add_argument('--render', type=str2bool, default=False, help='Render or Not')
 parser.add_argument('--Loadmodel', type=str2bool, default=False, help='Load pretrained model or Not')
@@ -327,13 +336,22 @@ opt = parser.parse_args()
 opt.dvc = torch.device(opt.dvc) # from str to torch.device
 print(opt)
 
+def plot_training_score(scores, steps, filename='training_score.png'):
+	plt.figure(figsize=(10,6))
+	plt.plot(steps, scores, marker='o', linestyle='-', color='b')
+	plt.savefig(filename)
+	plt.close()
+
 def main():
-    EnvName = []
+    EnvName = ['r', 'LunarLanderContinuous-v2']
     BrifEnvName = []
 
     '''Build Env'''
-    env = gym.make("LunarLander-v3", continuous=False, gravity=-10.0,
-               enable_wind=False, wind_power=15.0, turbulence_power=1.5)
+    env = gym.make(EnvName[opt.EnvIdex], render_mode = "human" if opt.render else None)
+	eval_env = gym.make(EnvName[opt.EnvIdex], render_mode = "human" if opt.render else None)
+	opt.state_dim = env.observation_space.shape[0]
+	opt.action_dim = env.action_space.shape[0]
+	opt.max_action = float(env.action_space.high[0])
 
     # print('Env:',EnvName[opt.EnvIdex],'  state_dim:',opt.state_dim,'  action_dim:',opt.action_dim,
         #   '  max_a:',opt.max_action,'  min_a:',env.action_space.low[0], 'max_steps', opt.max_steps)
@@ -360,31 +378,54 @@ def main():
 
     '''Run Training loop or Eval'''
     if opt.render:
-        
+        while True:
+			ep_r = evaluate_policy(env, agent, opt.max_action, 1)
     else:
         traj_lenth, total_steps = 0, 0
-        while :
+        while total_steps < opt.Max_train_steps:
 			'''Reset Env and initialise'''
-			env.reset()
+			s, _ = env.reset(seed=env_seed)
+			env_seed += 1
+			done = False
 			'''Interact & train'''
 			while not done:
 				'''Interact with Env'''
-				
+				a, logprob_a = PPO_agent.select_action(s, deterministic=False)
+				s_next, r, dw, tr, _ = env.step(Action_adapter(a,opt.max_action))
+				r = Reward_adapter(r, opt.EnvIdex)
+				done = (dw or tr)
 
 				'''Store the current transition'''
-				
+				agent.put_data(s, a, r, s_next, logprob_a, done, dw, idx = traj_lenth)
+				s = s_next
 
 				'''Fill initial entry of scores'''
+				if total_steps == 0:
+					steps_list.append(total_steps)
+					score = evaluate_policy(eval_env, agent, opt.max_action, turns=3)
+					scores_list.append(score)
 				
-				
+				traj_length += 1
+				total_steps += 1
+
 				'''Update if its time'''
-				
+				if traj_length % opt.T_horizon ==0:
+					agent.train()
+					traj_length = 0
 				
 				'''Record & log'''
-				
-				
+				if total_steps % opt.eval_interval == 0
+					score = evaluate_policy(eval_env, agent, opt.max_action, turns=3)
+					scores_list.append(score)
+					steps_list.append(total_steps)
+					plot_training_score(scores_list,steps_list,plot_filename)
+					print('EnvName:',EnvName[opt.EnvIdex],'seed:',opt.seed,'steps: {}k'.format(int(total_steps/1000)),'score:',score)
 				'''Save model'''
+				if total_steps % opt.save_interval == 0:
+					agent.save(BrifEnvName[opt.EnvIdex], int(total_steps/1000))
                 
+		env.close()
+		eval_env.close()
 
 
 if __name__ == '__main__':
