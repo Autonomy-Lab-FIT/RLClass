@@ -327,7 +327,7 @@ def plot_training_score(scores, steps, filename='training_score.png'):
 
 def main():
     EnvName = ['r', 'LunarLanderContinuous-v2']
-    BrifEnvName = []
+    BrifEnvName = ['r', 'LLdV2']
 
     '''Build Env'''
     env = gym.make(EnvName[opt.EnvIdex], render_mode = "human" if opt.render else None)
