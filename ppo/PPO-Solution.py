@@ -16,6 +16,30 @@ import matplotlib.pyplot as plt
 
 from utils import str2bool, plot_training_score, Action_adapter, Reward_adapter, evaluate_policy
 
+# Transition = namedtuple('Transition', 
+#                         ('state', 'action', 'reward', 'next_state', 
+#                          'logprob', 'done', 'dw'))
+
+# class ReplayBuffer:
+#     def __init__(self, capacity):
+#         self.capacity = capacity
+#         self.buffer = []
+#         self.position = 0
+
+#     def push(self, *args):
+#         """Save a transition"""
+#         if len(self.buffer) < self.capacity:
+#             self.buffer.append(None)
+#         self.buffer[self.position] = Transition(*args)
+#         self.position = (self.position + 1) % self.capacity
+
+#     def sample(self, batch_size):
+#         return random.sample(self.buffer, batch_size)
+
+#     def __len__(self):
+#         return len(self.buffer)
+
+
 class Critic(nn.Module):
 	def __init__(self, state_dim,net_width):
 		super(Critic, self).__init__()
@@ -55,10 +79,19 @@ class Actor(nn.Module):
 			nn.Tanh(),
 			nn.Linear(net_width, action_dim)
         )
-
+		
+		# self.sigma_head = nn.Sequential(
+		# 	nn.Linear(state_dim, net_width),
+		# 	nn.Tanh(),
+		# 	nn.Linear(net_width, net_width),
+		# 	nn.Tanh(),
+		# 	nn.Linear(net_width, action_dim)
+        # )
 		self.logstd = nn.Parameter(torch.zeros(action_dim))  # learnable log σ
 
 	def forward(self, state):
+		# mu = torch.sigmoid(self.mu_head(state))
+		# sigma = F.softplus( self.sigma_head(state) )
 		mu = self.mu_head(state)         # unbounded
 		sigma = torch.exp(self.logstd)   # stable, constant per action dim
 		return mu,sigma
@@ -86,6 +119,7 @@ class PPO_agent(object):
 		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.c_lr)
 
 		# Build Replay buffer
+		# self.buffer = ReplayBuffer(capacity=100000)
 		self.s_buffer = np.zeros((self.T_horizon, self.state_dim),dtype=np.float32)
 		self.a_buffer = np.zeros((self.T_horizon, self.action_dim),dtype=np.float32)
 		self.r_buffer = np.zeros((self.T_horizon, 1),dtype=np.float32)
@@ -105,6 +139,7 @@ class PPO_agent(object):
 				# only used when interact with the env
 				dist = self.actor.get_dist(state)
 				a = dist.sample()
+				# a = torch.clamp(a, 0, 1)
 				logprob_a = dist.log_prob(a).cpu().numpy().flatten()
 				return a.cpu().numpy()[0], logprob_a # both are in shape (adim, 0)
 
@@ -226,7 +261,7 @@ parser.add_argument('--ModelIdex', type=int, default=100, help='which model to l
 parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--T_horizon', type=int, default=2048, help='lenth of long trajectory')
 parser.add_argument('--Distribution', type=str, default='Beta', help='Should be one of Beta ; GS_ms  ;  GS_m')
-parser.add_argument('--Max_train_steps', type=int, default=int(2.5e6), help='Max training steps')
+parser.add_argument('--Max_train_steps', type=int, default=int(5e6), help='Max training steps')
 parser.add_argument('--save_interval', type=int, default=int(5e5), help='Model saving interval, in steps.')
 parser.add_argument('--eval_interval', type=int, default=int(5e3), help='Model evaluating interval, in steps.')
 
@@ -313,6 +348,7 @@ def main():
 
                 '''Store the current transition'''
                 agent.put_data(s, a, r, s_next, logprob_a, done, dw, idx = traj_lenth)
+                # agent.buffer.push(s, a, r, s_next, logprob_a, done, dw)
                 s = s_next
 				
                 '''Fill initial entry of scores'''
